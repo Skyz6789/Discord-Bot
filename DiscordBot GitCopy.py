@@ -1,4 +1,4 @@
-# Version 1.0 of the bot bare bones and no super cool features added
+# Version 1.1 of the bot. Added some other featrues that i think are kinda cool.
 import discord
 import random
 from discord.ext import commands
@@ -71,7 +71,7 @@ async def randomSpecial(ctx):
 # Command for my fellow nerds that are curious about my rigs specs
 @client.command()
 async def specs(ctx):
-    specs = "Alright fellow nerd here is skyz PCs specs\nCUP: i7-10700 8 Core\nGPU: RXT 3060 12gb vram\nRam: 32Ggb of Corsair Vengence DDR4\nMoBo: ASUS TUFF Z-590 LGA 1200\nPower Supply: Corsair Shift 850 watt\nCase: Corsair 4000D Airflow (yes he knows hes a basic bitch for this)"
+    specs = "YOUR SPECS"
     await ctx.send(specs)
 
 # command tells the user what is the most liked video on my channel
