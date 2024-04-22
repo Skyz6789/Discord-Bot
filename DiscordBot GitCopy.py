@@ -1,8 +1,8 @@
-# Version 1.1 of the bot. Added some other featrues that i think are kinda cool.
+# Version 1.12 added some things, cleaned up the code, and losing my will to live :)
+# major thing was fixing the randomSpecial() command to actually have the correct number of points given to you to put in speical from level 2-50 
 import discord
 import random
 from discord.ext import commands
-import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 from googleapiclient.discovery import build
@@ -19,7 +19,7 @@ client = commands.Bot(command_prefix = '!', intents = intents)
 async def on_ready():      
     print('{0.user} is online'.format(client))
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name= f'Fallout 76')) 
-        
+    
 # Picks a random play style for the user to try.
 @client.command()
 async def buildPicker(ctx):
@@ -59,11 +59,14 @@ async def fortuneTeller(ctx, *, question):
 @client.command()
 async def randomSpecial(ctx):
     special = [1, 1, 1, 1, 1, 1, 1]
-    for i in range(50):
+    total_points = 43  # Total points available after the base value of 1 for each attribute
+    
+    while total_points > 0:
         index = random.randint(0, 6)
         
         if special[index] < 15: 
             special[index] += 1
+            total_points -= 1
     
     specialTotal = f"Strength: {special[0]}\nPerception: {special[1]}\nEndurance: {special[2]}\nChrisma: {special[3]}\nIntellegence, {special[4]}\nAgility: {special[5]}\nLuck: {special[6]}"
     await ctx.send("Your Random Special Stats\n" + specialTotal)
@@ -81,12 +84,12 @@ async def mostLiked(ctx):
     max_likes = 0
     
     # Gets the uploads playlist ID
-    request = youtube.channels().list(part="contentDetails", id=CHANNELID)
+    request = youtube.channels().list(part = "contentDetails", id = CHANNELID)
     response = request.execute()
     uploads_playlist_id = response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
 
     # Gets the videos in the uploads playlsit
-    request = youtube.playlistItems().list(part="snippet", playlistId=uploads_playlist_id, maxResults=50)
+    request = youtube.playlistItems().list(part = "snippet", playlistId = uploads_playlist_id, maxResults = 25)
     response = request.execute()
 
     # Iterates through the videos in the uplaods playlist
@@ -109,7 +112,7 @@ async def mostLiked(ctx):
 # Picks a random video from my YouTube channel.
 @client.command()
 async def video(ctx):
-    num_results = 200
+    num_results = 100
     
     request = youtube.search().list(
         part = "id",
