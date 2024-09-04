@@ -1,5 +1,6 @@
-# Version 1.12 added some things, cleaned up the code, and losing my will to live :)
-# major thing was fixing the randomSpecial() command to actually have the correct number of points given to you to put in speical from level 2-50 
+# Version 1.5 added a trivia question game, added Fallout 4 ending picker, and fixed minor bugs or spelling mistakes because I spell like a 4th grader
+# Major thing was the advent of the trivia game command and gets it closer to a useable cool bot rather than boring... to be fiar its still boring
+import asyncio
 import discord
 import random
 from discord.ext import commands
@@ -15,6 +16,14 @@ TOKEN = "YOUR TOKEN"
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix = '!', intents = intents)
 
+# Eventually want to store the questions in a Json file but, ran into issues with it earlier. So, I will revise it later.
+triviaQuestion = [
+    {"question": "QUESTION", "answer": "ANSWER"},
+    {"question": "QUESTION", "answer": "ANSWER"},
+    {"question": "QUESTION", "answer": "ANSWER"},
+    {"question": "QUESTION","answer": "ANSWER"}
+]
+
 @client.event  
 async def on_ready():      
     print('{0.user} is online'.format(client))
@@ -26,11 +35,17 @@ async def buildPicker(ctx):
     builds = ["gunslinger", "guerrilla", "gladiator", "slugger", "brawler", "rifleman", "commando", "hevay gun", "grenade", "explosive"]
     await ctx.send(f"You should play with a {random.choice(builds)} style")
 
-# Picks a random New Vegas Ending.
+# Picks a random New Vegas ending for your next playthrough.
 @client.command()
-async def newVegasEnding(ctx):
+async def FONVending(ctx):
     ending = ["NCR", "Leigion", "Mr.House", "Yes Man", "Father Elijah"]
-    await ctx.send(f"In your next New Vegas Playthrough. You should side with {random.choice(ending)}")
+    await ctx.send(f"In your next New Vegas Playthrough. You should side with the {random.choice(ending)}")
+    
+# Picks a random Fallout 4 ending for your next playthrough.
+@client.command()
+async def FO4Ending(ctx):
+    ending = ["Minutemen", "Brotherhood of Steel", "Railroad", "Institute"]
+    await ctx.send(f"In your next Fallout 4 Playthrough. You should side with the {random.choice(ending)}")
     
 # Acts like a fortune teller to answer user's questions abotu whatever they ask it.
 @client.command()
@@ -70,6 +85,41 @@ async def randomSpecial(ctx):
     
     specialTotal = f"Strength: {special[0]}\nPerception: {special[1]}\nEndurance: {special[2]}\nChrisma: {special[3]}\nIntellegence, {special[4]}\nAgility: {special[5]}\nLuck: {special[6]}"
     await ctx.send("Your Random Special Stats\n" + specialTotal)
+    
+# sends a random Fallout qoute
+@client.command()
+async def qoute(ctx):
+    qoutes = []
+    with open("qoutes.txt", "r") as file:
+    # Read the lines and store them in a list
+        qoutes = file.readlines()
+        
+    await ctx.send(f"{random.choice(qoutes)}")
+
+# Gives user a random Fallout trivia question
+@client.command()
+async def trivia(ctx):
+    # Picks a random trivia question
+    trivia_question = random.choice(triviaQuestion)
+    question = trivia_question["question"]
+    answer = trivia_question["answer"]
+
+    await ctx.send(f"***Trivia Question:*** {question}")
+    
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+    
+    try:
+        # Wait for the user's answer
+        user_answer = await client.wait_for('message', timeout=30.0, check=check)
+        
+        if user_answer.content.lower() == answer.lower():
+            await ctx.send(f"Correct! The answer is {answer}.")
+        else:
+            await ctx.send(f"Wrong! The correct answer was {answer}.")
+    
+    except asyncio.TimeoutError:
+        await ctx.send(f"Time's up! The correct answer was {answer}.")
     
 # Command for my fellow nerds that are curious about my rigs specs
 @client.command()
